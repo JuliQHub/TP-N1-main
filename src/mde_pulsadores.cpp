@@ -143,7 +143,6 @@ void mde_pulsadores(void)
         if (((PINC >> PC3) & 1) == 1 && timer_p3 == 0)
         {
             estado_p3 = up;
-            timer_p3 = 0;
         }
         break;
     default:

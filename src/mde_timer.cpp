@@ -1,7 +1,7 @@
 #include <arduino.h>
 #include "timer.h"
 
-uint16_t timer_displays = 0, timer_p1 = 0, timer_p2 = 0, timer_p3 = 0;
+uint16_t timer_displays = 0, timer_p1 = 0, timer_p2 = 0, timer_p3 = 0, timer_cuenta_regresiva = 0, timer_parpadeo_total = 0, timer_parpadeo = 0;
 void config_TIMER0(void)
 {
     TCCR0A = (1 << WGM01);  // Activa el bit CTC (clear timer on compare match)                        // del TCCR0A (timer counter/control register)
@@ -26,4 +26,9 @@ ISR(TIMER0_COMPA_vect) // Funcion de invocacion del vector de interrupciones (TI
     {
         timer_p3--;
     }
+    timer_cuenta_regresiva++;
+
+    timer_parpadeo_total++;
+
+    timer_parpadeo++;
 }

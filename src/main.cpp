@@ -10,15 +10,14 @@ int main(void)
   DDRC &= (0b11000111);
   PORTC |= (0b00111000);
 
-  DDRC |= (0b00000111);
-
   config_TIMER0();
   sei();
   while (1)
   {
     mde_multiplexado();
     mde_pulsadores();
-
+    cuenta_regresiva();
+    parpadeo();
   }
 
   return 0;

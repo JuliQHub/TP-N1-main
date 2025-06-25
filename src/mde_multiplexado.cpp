@@ -6,7 +6,8 @@
 
 uint16_t unidad, decena, centena, unidad_de_mil, minutos_display, segundos_display, segundos_ct;
 extern bool flag_p3;
-bool estado_cuenta_regresiva = 0;
+extern uint16_t timer_cuenta_regresiva, timer_parpadeo_total, timer_parpadeo;
+bool estado_cuenta_regresiva = 0, flag_parpadeo = 0;
 
 enum DISPLAYS
 {
@@ -114,9 +115,64 @@ void entero_4dig(void)
     unidad_de_mil = num / 10;
 }
 
-void cuenta_regresiva(void){
-if (flag_p3 == 1){
- estado_cuenta_regresiva^=estado_cuenta_regresiva;
- 
+void cuenta_regresiva(void)
+{
+    if (flag_p3 == 1)
+    {
+
+        flag_p3 = 0;
+        estado_cuenta_regresiva = !estado_cuenta_regresiva;
+        timer_cuenta_regresiva = 0;
+    }
+    if (estado_cuenta_regresiva == 1)
+    {
+        if (timer_cuenta_regresiva == 1000)
+        {
+            if (segundos_ct > 0)
+            {
+                segundos_ct--;
+                timer_cuenta_regresiva = 0;
+            }
+            else
+            {
+                flag_parpadeo = 1;
+            }
+        }
+    }
 }
+
+void parpadeo(void)
+{
+    if (flag_parpadeo == 1)
+    {
+        if (timer_parpadeo_total <= 10000)
+        {
+            if (flag_parpadeo == 0)
+            {
+                {
+                    if (timer_parpadeo <= 500)
+                    {
+                        DDRD &= (0b11110000);
+                        DDRB &= (0b00000111);
+                    }
+                    else
+                    {
+                        flag_parpadeo = 1;
+                    }
+                    if (flag_parpadeo == 1)
+                    {
+                        if (timer_parpadeo <= 500)
+                        {
+                            DDRD |= (0b11110000);
+                            DDRB |= (0b00000111);
+                        }
+                        else
+                        {
+                            flag_parpadeo = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
