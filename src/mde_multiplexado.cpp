@@ -7,7 +7,7 @@
 uint16_t unidad, decena, centena, unidad_de_mil, minutos_display, segundos_display, segundos_ct;
 extern bool flag_p3;
 extern uint16_t timer_cuenta_regresiva, timer_parpadeo_total, timer_parpadeo;
-bool estado_cuenta_regresiva = 0, flag_parpadeo = 0;
+bool estado_cuenta_regresiva = 0, flag_parpadeo = 0, flag_comenzar_a_parpadear = 0;
 
 enum DISPLAYS
 {
@@ -35,11 +35,13 @@ void mde_multiplexado(void)
                 unidad_de_mil = 2;
             }
             PORTD &= (0b00000011);
+            PORTD |= (0b00001100);
             PORTB &= (0b11000000);
+            PORTB |= (0b00110000);
 
             PORTB |= (Tabla_Digitos_7seg[unidad_de_mil] >> 4);
             PORTD |= (Tabla_Digitos_7seg[unidad_de_mil] << 4);
-            PORTD |= (1 << PD2);
+            PORTD &= ~(1 << PD2);
             estado_displays = DISPLAY_2;
             timer_displays = 0;
         }
@@ -50,12 +52,14 @@ void mde_multiplexado(void)
         if (timer_displays > TIEMPO_DISPLAY)
         {
             PORTD &= (0b00000011);
+            PORTD |= (0b00001100);
             PORTB &= (0b11000000);
+            PORTB |= (0b00110000);
 
             PORTB |= (Tabla_Digitos_7seg[centena] >> 4);
             PORTD |= (Tabla_Digitos_7seg[centena] << 4);
             PORTB |= (1 << PB3);
-            PORTD |= (1 << PD3);
+            PORTD &= ~(1 << PD3);
 
             estado_displays = DISPLAY_3;
             timer_displays = 0;
@@ -71,11 +75,13 @@ void mde_multiplexado(void)
                 decena = 6;
             }
             PORTD &= (0b00000011);
+            PORTD |= (0b00001100);
             PORTB &= (0b11000000);
+            PORTB |= (0b00110000);
 
             PORTB |= (Tabla_Digitos_7seg[decena] >> 4);
             PORTD |= (Tabla_Digitos_7seg[decena] << 4);
-            PORTB |= (1 << PB4);
+            PORTB &= ~(1 << PB4);
 
             estado_displays = DISPLAY_4;
             timer_displays = 0;
@@ -86,11 +92,13 @@ void mde_multiplexado(void)
         if (timer_displays > TIEMPO_DISPLAY)
         {
             PORTD &= (0b00000011);
+            PORTD |= (0b00001100);
             PORTB &= (0b11000000);
+            PORTB |= (0b00110000);
 
             PORTB |= (Tabla_Digitos_7seg[unidad] >> 4);
             PORTD |= (Tabla_Digitos_7seg[unidad] << 4);
-            PORTB |= (1 << PB5);
+            PORTB &= ~(1 << PB5);
 
             estado_displays = DISPLAY_1;
             timer_displays = 0;
@@ -119,7 +127,6 @@ void cuenta_regresiva(void)
 {
     if (flag_p3 == 1)
     {
-
         flag_p3 = 0;
         estado_cuenta_regresiva = !estado_cuenta_regresiva;
         timer_cuenta_regresiva = 0;
@@ -135,7 +142,9 @@ void cuenta_regresiva(void)
             }
             else
             {
-                flag_parpadeo = 1;
+                flag_comenzar_a_parpadear = 1;
+                timer_parpadeo_total = 0;
+                estado_cuenta_regresiva = 0;
             }
         }
     }
@@ -143,36 +152,37 @@ void cuenta_regresiva(void)
 
 void parpadeo(void)
 {
-    if (flag_parpadeo == 1)
-    {
+    if (flag_comenzar_a_parpadear == 1)
+    {     
         if (timer_parpadeo_total <= 10000)
         {
             if (flag_parpadeo == 0)
             {
+                if (timer_parpadeo <= 500)
                 {
-                    if (timer_parpadeo <= 500)
-                    {
-                        DDRD &= (0b11110000);
-                        DDRB &= (0b00000111);
-                    }
-                    else
-                    {
-                        flag_parpadeo = 1;
-                    }
-                    if (flag_parpadeo == 1)
-                    {
-                        if (timer_parpadeo <= 500)
-                        {
-                            DDRD |= (0b11110000);
-                            DDRB |= (0b00000111);
-                        }
-                        else
-                        {
-                            flag_parpadeo = 0;
-                        }
-                    }
+                    PORTD &= (0b11110000);
+                    PORTB &= (0b00000111);
+                }
+                else
+                {
+                    flag_parpadeo = 1;
+                    timer_parpadeo = 0;
+                }
+            }
+            if (flag_parpadeo == 1)
+            {
+                if (timer_parpadeo <= 500)
+                {
+                    PORTD |= (0b11110000);
+                    PORTB |= (0b00000111);
+                }
+                else
+                {
+                    flag_parpadeo = 0;
+                    timer_parpadeo = 0;
                 }
             }
         }
+        else flag_comenzar_a_parpadear = 0;
     }
 }

@@ -9,6 +9,7 @@
 
 volatile bool flag_p1 = 0, flag_p2 = 0, flag_p3 = 0;
 extern uint16_t timer_p1, timer_p2, timer_p3, segundos_ct;
+extern bool estado_cuenta_regresiva;
 
 void mde_pulsadores(void)
 {
@@ -33,7 +34,7 @@ void mde_pulsadores(void)
         {
             estado_p1 = down;
             flag_p1 = 1;
-            if (segundos_ct < 1200)
+            if (segundos_ct < 1200 && estado_cuenta_regresiva != 1)
             {
                 segundos_ct++;
             }
@@ -79,7 +80,7 @@ void mde_pulsadores(void)
         {
             estado_p2 = down;
             flag_p2 = 1;
-            if (segundos_ct > 0)
+            if (segundos_ct > 0 && estado_cuenta_regresiva != 1)
             {
                 segundos_ct--;
             }
